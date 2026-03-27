@@ -21,12 +21,6 @@ export default function App() {
   const handleScore = async () => {
     if (!input.trim()) return;
     
-    // Check if API key is missing (common in static deployments)
-    if (!process.env.GEMINI_API_KEY && !import.meta.env.VITE_GEMINI_API_KEY) {
-      setError('Gemini API Key is missing. Please check the DEPLOYMENT.md guide to set it up.');
-      return;
-    }
-
     setState('scoring');
     setError(null);
     try {
