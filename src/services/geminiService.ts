@@ -157,7 +157,7 @@ const SYSTEM_INSTRUCTION = `You are SCORE-MY-IDEA — a brutally honest AI criti
 
 export async function scoreProject(input: string): Promise<ShipLogResult> {
   const response = await ai.models.generateContent({
-    model: "gemini-3.1-pro-preview",
+    model: "gemini-3-flash-preview",
     contents: [{ role: "user", parts: [{ text: input }] }],
     config: {
       systemInstruction: SYSTEM_INSTRUCTION,
@@ -173,7 +173,7 @@ export async function scoreProject(input: string): Promise<ShipLogResult> {
 
 export async function rewriteAndPitch(input: string, previousResult: ShipLogResult): Promise<{ rewrite: SubmissionRewrite; pitch: PitchScript }> {
   const response = await ai.models.generateContent({
-    model: "gemini-3.1-pro-preview",
+    model: "gemini-3-flash-preview",
     contents: [
       { role: "user", parts: [{ text: `Original input: ${input}\nPrevious analysis: ${JSON.stringify(previousResult)}` }] },
     ],
