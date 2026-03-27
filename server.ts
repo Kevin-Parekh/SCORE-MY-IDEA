@@ -7,6 +7,16 @@ import "dotenv/config";
 const app = express();
 app.use(express.json());
 
+// Health check
+app.get("/api/health", (req, res) => {
+  res.json({
+    status: "ok",
+    env: process.env.NODE_ENV,
+    hasApiKey: !!process.env.GEMINI_API_KEY,
+    vercel: !!process.env.VERCEL,
+  });
+});
+
 const SYSTEM_INSTRUCTION = `You are SCORE-MY-IDEA — a brutally honest AI critique engine built specifically for Weekly AI Generalist Hackathons. You have one job: make every project idea score higher before it hits the judges.
 
 ## YOUR PERSONALITY
@@ -161,7 +171,7 @@ app.post("/api/score", async (req, res) => {
 
     const ai = new GoogleGenAI({ apiKey });
     const response = await ai.models.generateContent({
-      model: "gemini-3-flash-preview",
+      model: "gemini-1.5-flash",
       contents: [{ role: "user", parts: [{ text: input }] }],
       config: {
         systemInstruction: SYSTEM_INSTRUCTION,
@@ -187,7 +197,7 @@ app.post("/api/rewrite-and-pitch", async (req, res) => {
 
     const ai = new GoogleGenAI({ apiKey });
     const response = await ai.models.generateContent({
-      model: "gemini-3-flash-preview",
+      model: "gemini-1.5-flash",
       contents: [
         { role: "user", parts: [{ text: `Original input: ${input}\nPrevious analysis: ${JSON.stringify(previousResult)}` }] },
       ],
@@ -207,26 +217,29 @@ app.post("/api/rewrite-and-pitch", async (req, res) => {
   }
 });
 
-async function startServer() {
-  const PORT = 3000;
-
-  if (process.env.NODE_ENV !== "production") {
-    const vite = await createViteServer({
-      server: { middlewareMode: true },
-      appType: "spa",
-    });
+// For Vercel, we export the app. For local, we listen.
+if (process.env.NODE_ENV !== "production") {
+  createViteServer({
+    server: { middlewareMode: true },
+    appType: "spa",
+  }).then((vite) => {
     app.use(vite.middlewares);
-  } else {
-    const distPath = path.join(process.cwd(), "dist");
-    app.use(express.static(distPath));
-    app.get("*", (req, res) => {
-      res.sendFile(path.join(distPath, "index.html"));
+    const PORT = 3000;
+    app.listen(PORT, "0.0.0.0", () => {
+      console.log(`Development server running on http://localhost:${PORT}`);
     });
-  }
-
+  });
+} else if (process.env.VERCEL !== "1") {
+  // Production mode (not on Vercel, e.g. local npm run start)
+  const distPath = path.join(process.cwd(), "dist");
+  app.use(express.static(distPath));
+  app.get("*", (req, res) => {
+    res.sendFile(path.join(distPath, "index.html"));
+  });
+  const PORT = 3000;
   app.listen(PORT, "0.0.0.0", () => {
-    console.log(`Server running on http://localhost:${PORT}`);
+    console.log(`Production server running on http://localhost:${PORT}`);
   });
 }
 
-startServer();
+export default app;

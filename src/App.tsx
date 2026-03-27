@@ -28,7 +28,7 @@ export default function App() {
       setResult(res);
       setState('result');
     } catch (err) {
-      setError('Scoring failed. Please try again.');
+      setError(err instanceof Error ? err.message : 'Scoring failed. Please try again.');
       setState('input');
       console.error(err);
     }
@@ -44,7 +44,7 @@ export default function App() {
       setPitch(pitch);
       setState('full-view');
     } catch (err) {
-      setError('Rewrite failed. Please try again.');
+      setError(err instanceof Error ? err.message : 'Rewrite failed. Please try again.');
       setState('result');
       console.error(err);
     }

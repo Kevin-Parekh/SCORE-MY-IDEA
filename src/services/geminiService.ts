@@ -7,7 +7,10 @@ export async function scoreProject(input: string): Promise<ShipLogResult> {
     body: JSON.stringify({ input }),
   });
 
-  if (!response.ok) throw new Error("Failed to score idea");
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({ error: "Unknown error" }));
+    throw new Error(errorData.error || "Failed to score idea");
+  }
   return await response.json();
 }
 
@@ -18,6 +21,9 @@ export async function rewriteAndPitch(input: string, previousResult: ShipLogResu
     body: JSON.stringify({ input, previousResult }),
   });
 
-  if (!response.ok) throw new Error("Failed to rewrite and pitch");
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({ error: "Unknown error" }));
+    throw new Error(errorData.error || "Failed to rewrite and pitch");
+  }
   return await response.json();
 }
