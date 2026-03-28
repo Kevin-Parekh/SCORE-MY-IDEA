@@ -1,20 +1,45 @@
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
-</div>
+# SCORE-MY-IDEA 🚀
+### The Brutally Honest AI Critique Engine for Hackathons
 
-# Run and deploy your AI Studio app
+**SCORE-MY-IDEA** is a full-stack AI application built to help hackathon participants refine their project ideas before they hit the judges. It uses Google's Gemini AI to provide sharp, actionable, and "brutally honest" feedback based on a standard 100-point hackathon rubric.
 
-This contains everything you need to run your app locally.
+## ✨ Features
+- **Instant Scoring**: Get a score out of 100 across 5 key categories (Problem Framing, AI Leverage, Usefulness, Execution, Clarity).
+- **Actionable Critique**: Not just a score, but a "Weakness" vs "Needs" breakdown for every section.
+- **AI Rewrite**: Automatically rewrites your submission text to be more professional and impactful.
+- **60-Second Pitch**: Generates a high-pressure pitch script based on your project's strengths.
 
-View your app in AI Studio: https://ai.studio/apps/cb719fe9-d4f1-49d1-ad4e-d4009ee37895
+## 🛠️ Tech Stack
+- **Frontend**: React 19, Tailwind CSS, Framer Motion.
+- **Backend**: Node.js, Express (Serverless via Vercel).
+- **AI**: Google Gemini 3.1 Flash.
 
-## Run Locally
+## 🚀 Quick Start
 
-**Prerequisites:**  Node.js
+### Prerequisites
+- Node.js installed.
+- A Google Gemini API Key.
 
+### Local Development
+1. Clone the repo.
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
+3. Create a `.env` file and add your key:
+   ```env
+   GEMINI_API_KEY=your_api_key_here
+   ```
+4. Run the app:
+   ```bash
+   npm run dev
+   ```
 
-1. Install dependencies:
-   `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
-   `npm run dev`
+## 🌐 Deployment
+This app is optimized for **Vercel**. 
+1. Connect your GitHub repo to Vercel.
+2. Add `GEMINI_API_KEY` to your Vercel Environment Variables.
+3. Deploy!
+
+---
+*Built for the Weekly AI Generalist Hackathon.*
