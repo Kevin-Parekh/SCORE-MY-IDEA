@@ -1,8 +1,9 @@
 import express from "express";
-import { createServer as createViteServer } from "vite";
 import path from "path";
-import { GoogleGenAI, Type, ThinkingLevel } from "@google/genai";
-import "dotenv/config";
+import { GoogleGenAI, Type } from "@google/genai";
+if (process.env.NODE_ENV !== "production") {
+  await import("dotenv/config");
+}
 
 const app = express();
 app.use(express.json());
@@ -230,14 +231,16 @@ app.use((err: any, req: express.Request, res: express.Response, next: express.Ne
 // For Vercel, we export the app. For local, we listen.
 if (process.env.VERCEL !== "1") {
   if (process.env.NODE_ENV !== "production") {
-    createViteServer({
-      server: { middlewareMode: true },
-      appType: "spa",
-    }).then((vite) => {
-      app.use(vite.middlewares);
-      const PORT = 3000;
-      app.listen(PORT, "0.0.0.0", () => {
-        console.log(`Development server running on http://localhost:${PORT}`);
+    import("vite").then(({ createServer: createViteServer }) => {
+      createViteServer({
+        server: { middlewareMode: true },
+        appType: "spa",
+      }).then((vite) => {
+        app.use(vite.middlewares);
+        const PORT = 3000;
+        app.listen(PORT, "0.0.0.0", () => {
+          console.log(`Development server running on http://localhost:${PORT}`);
+        });
       });
     });
   } else {
