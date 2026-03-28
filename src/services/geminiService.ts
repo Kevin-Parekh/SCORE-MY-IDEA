@@ -8,8 +8,22 @@ export async function scoreProject(input: string): Promise<ShipLogResult> {
   });
 
   if (!response.ok) {
-    const errorData = await response.json().catch(() => ({ error: "Unknown error" }));
-    throw new Error(errorData.error || "Failed to score idea");
+    let errorMessage = "Failed to score idea";
+    try {
+      const body = await response.text();
+      try {
+        const json = JSON.parse(body);
+        errorMessage = json.error || json.message || body || errorMessage;
+      } catch (e) {
+        errorMessage = body || errorMessage;
+      }
+    } catch (e) {
+      errorMessage = `Server Error: ${response.status} ${response.statusText}`;
+    }
+    if (errorMessage.length > 200) {
+      errorMessage = errorMessage.substring(0, 200) + "...";
+    }
+    throw new Error(errorMessage);
   }
   return await response.json();
 }
@@ -22,8 +36,22 @@ export async function rewriteAndPitch(input: string, previousResult: ShipLogResu
   });
 
   if (!response.ok) {
-    const errorData = await response.json().catch(() => ({ error: "Unknown error" }));
-    throw new Error(errorData.error || "Failed to rewrite and pitch");
+    let errorMessage = "Failed to rewrite and pitch";
+    try {
+      const body = await response.text();
+      try {
+        const json = JSON.parse(body);
+        errorMessage = json.error || json.message || body || errorMessage;
+      } catch (e) {
+        errorMessage = body || errorMessage;
+      }
+    } catch (e) {
+      errorMessage = `Server Error: ${response.status} ${response.statusText}`;
+    }
+    if (errorMessage.length > 200) {
+      errorMessage = errorMessage.substring(0, 200) + "...";
+    }
+    throw new Error(errorMessage);
   }
   return await response.json();
 }

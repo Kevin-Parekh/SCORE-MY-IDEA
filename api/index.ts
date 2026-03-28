@@ -1,7 +1,7 @@
 import express from "express";
 import { createServer as createViteServer } from "vite";
 import path from "path";
-import { GoogleGenAI, Type } from "@google/genai";
+import { GoogleGenAI, Type, ThinkingLevel } from "@google/genai";
 import "dotenv/config";
 
 const app = express();
@@ -171,7 +171,7 @@ app.post("/api/score", async (req, res) => {
 
     const ai = new GoogleGenAI({ apiKey });
     const response = await ai.models.generateContent({
-      model: "gemini-1.5-flash",
+      model: "gemini-3.1-flash-lite-preview",
       contents: [{ role: "user", parts: [{ text: input }] }],
       config: {
         systemInstruction: SYSTEM_INSTRUCTION,
@@ -197,7 +197,7 @@ app.post("/api/rewrite-and-pitch", async (req, res) => {
 
     const ai = new GoogleGenAI({ apiKey });
     const response = await ai.models.generateContent({
-      model: "gemini-1.5-flash",
+      model: "gemini-3.1-flash-lite-preview",
       contents: [
         { role: "user", parts: [{ text: `Original input: ${input}\nPrevious analysis: ${JSON.stringify(previousResult)}` }] },
       ],
@@ -217,29 +217,41 @@ app.post("/api/rewrite-and-pitch", async (req, res) => {
   }
 });
 
+// Global error handler
+app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
+  console.error("Global Error Handler:", err);
+  res.status(500).json({
+    error: "Internal Server Error",
+    message: err.message || "An unexpected error occurred",
+    stack: process.env.NODE_ENV === "development" ? err.stack : undefined,
+  });
+});
+
 // For Vercel, we export the app. For local, we listen.
-if (process.env.NODE_ENV !== "production") {
-  createViteServer({
-    server: { middlewareMode: true },
-    appType: "spa",
-  }).then((vite) => {
-    app.use(vite.middlewares);
+if (process.env.VERCEL !== "1") {
+  if (process.env.NODE_ENV !== "production") {
+    createViteServer({
+      server: { middlewareMode: true },
+      appType: "spa",
+    }).then((vite) => {
+      app.use(vite.middlewares);
+      const PORT = 3000;
+      app.listen(PORT, "0.0.0.0", () => {
+        console.log(`Development server running on http://localhost:${PORT}`);
+      });
+    });
+  } else {
+    // Production mode (not on Vercel, e.g. local npm run start)
+    const distPath = path.join(process.cwd(), "dist");
+    app.use(express.static(distPath));
+    app.get("*", (req, res) => {
+      res.sendFile(path.join(distPath, "index.html"));
+    });
     const PORT = 3000;
     app.listen(PORT, "0.0.0.0", () => {
-      console.log(`Development server running on http://localhost:${PORT}`);
+      console.log(`Production server running on http://localhost:${PORT}`);
     });
-  });
-} else if (process.env.VERCEL !== "1") {
-  // Production mode (not on Vercel, e.g. local npm run start)
-  const distPath = path.join(process.cwd(), "dist");
-  app.use(express.static(distPath));
-  app.get("*", (req, res) => {
-    res.sendFile(path.join(distPath, "index.html"));
-  });
-  const PORT = 3000;
-  app.listen(PORT, "0.0.0.0", () => {
-    console.log(`Production server running on http://localhost:${PORT}`);
-  });
+  }
 }
 
 export default app;
